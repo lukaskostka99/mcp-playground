@@ -1,2 +1,2 @@
-# mcp-playground
+# mcp-streamlit-playground
 Some Description
