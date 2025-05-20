@@ -60,9 +60,6 @@ docker compose up --build
 | Streamlit Client | <http://localhost:8501> | `8501` |
 | Weather MCP | <http://localhost:8000/docs> | `8000` |
 | Currency MCP | <http://localhost:8001/docs> | `8001` |
-
-> **Tip:** Hot-reload during development with `docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up` (see *Development* section).
-
 ---
 
 ## ⚙️ Configuration
