@@ -8,7 +8,7 @@ from utils.async_helpers import reset_connection_state
 
 
 def create_history_chat_container():
-    history_container = st.sidebar.container(height=400, border=None)
+    history_container = st.sidebar.container(height=200, border=None)
     with history_container:
         chat_history_menu = [
                 f"{chat['chat_name']}_::_{chat['chat_id']}"
