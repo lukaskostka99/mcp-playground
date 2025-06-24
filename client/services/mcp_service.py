@@ -21,9 +21,9 @@ async def run_agent(agent, message: str) -> Dict:
     """Run the agent with the provided message."""
     return await agent.ainvoke({"messages": message})
 
-async def run_tool(tool, **kwargs):
+async def run_tool(tool, tool_input: Dict):
     """Run a tool with the provided parameters."""
-    return await tool.ainvoke(**kwargs)
+    return await tool.ainvoke(tool_input)
 
 def connect_to_mcp_servers():
     # Clean up existing client if any

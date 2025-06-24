@@ -1,10 +1,11 @@
 import streamlit as st
 from config import MODEL_OPTIONS
 import traceback
-from services.mcp_service import connect_to_mcp_servers
+from services.mcp_service import connect_to_mcp_servers, run_tool
 from services.chat_service import create_chat, delete_chat
 from utils.tool_schema_parser import extract_tool_parameters
-from utils.async_helpers import reset_connection_state
+from utils.async_helpers import reset_connection_state, run_async
+import asyncio
 
 
 def create_history_chat_container():
@@ -133,11 +134,69 @@ def create_mcp_tools_widget():
         if st.session_state.tools:
             st.subheader("🧰 Available Tools")
 
+            # Store selected tool in session state to persist
+            if 'selected_tool_name' not in st.session_state:
+                st.session_state.selected_tool_name = st.session_state.tools[0].name
+
+            def on_tool_change():
+                st.session_state.selected_tool_name = st.session_state.new_tool_selection
+            
             selected_tool_name = st.selectbox(
                 "Select a Tool",
                 options=[tool.name for tool in st.session_state.tools],
-                index=0
+                index=[tool.name for tool in st.session_state.tools].index(st.session_state.selected_tool_name),
+                key="new_tool_selection",
+                on_change=on_tool_change
             )
+
+            # GA4 Property Selector
+            if "ga" in selected_tool_name:
+                with st.container(border=True):
+                    st.write("**Google Analytics Property**")
+                    if 'ga_accounts' not in st.session_state:
+                        st.session_state.ga_accounts = []
+                        try:
+                            list_tool = next((t for t in st.session_state.tools if t.name == "list_ga_accounts"), None)
+                            if list_tool:
+                                with st.spinner("Loading GA Accounts..."):
+                                    # Define and run an async function to fetch accounts
+                                    async def fetch_ga_accounts():
+                                        return await run_tool(list_tool, tool_input={})
+                                    
+                                    # Run the async function and store the result
+                                    st.session_state.ga_accounts = asyncio.run(fetch_ga_accounts())
+                            else:
+                                st.warning("Could not find 'list_ga_accounts' tool.")
+                        except Exception as e:
+                            st.error(f"Failed to load GA accounts: {e}")
+
+                    if st.session_state.ga_accounts:
+                        # Check if the accounts data is valid
+                        if isinstance(st.session_state.ga_accounts, list) and all(isinstance(acc, dict) for acc in st.session_state.ga_accounts):
+                            options = {acc['property_id']: acc['display_name'] for acc in st.session_state.ga_accounts}
+                            
+                            # Set default if not set
+                            if 'ga_property_id' not in st.session_state or st.session_state.ga_property_id not in options:
+                                st.session_state.ga_property_id = list(options.keys())[0] if options else None
+
+                            if st.session_state.ga_property_id:
+                                def on_property_change():
+                                    st.session_state.ga_property_id = st.session_state.new_ga_property_id
+
+                                st.selectbox(
+                                    "Select Property",
+                                    options=list(options.keys()),
+                                    format_func=lambda x: options[x],
+                                    key="new_ga_property_id",
+                                    on_change=on_property_change,
+                                    index=list(options.keys()).index(st.session_state.ga_property_id)
+                                )
+                        else:
+                            st.error("GA accounts data is not in the expected format.")
+                            st.write(st.session_state.ga_accounts) # Display the problematic data
+                    else:
+                        st.write("No GA properties found or failed to load.")
+
 
             if selected_tool_name:
                 selected_tool = next(

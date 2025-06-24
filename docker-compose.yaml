@@ -1,23 +1,17 @@
-version: "3.9"
-
 services:
-  mcpserver1:
-    build: ./servers/server1
-    container_name: mcpserver_1
+  mcpserver_ga4:
+    build: ./servers/ga4_server
+    container_name: mcpserver_ga4
     restart: always
+    environment:
+      - GOOGLE_CLOUD_PROJECT=lukaskostka
     volumes:
-      - ./servers/server1:/app
+      - ./servers/ga4_server:/app
+      # The following line is for mounting Google Cloud credentials.
+      # The user needs to ensure the path is correct for their system.
+      - ~/.config/gcloud:/root/.config/gcloud
     ports:
-      - "8000:8000"
-  
-  mcpserver2:
-    build: ./servers/server2
-    container_name: mcpserver_2
-    restart: always
-    volumes:
-      - ./servers/server2:/app
-    ports:
-      - "8001:8001"
+      - "8002:8002"
 
   hostclient:
     build: ./client
@@ -30,5 +24,4 @@ services:
     command: >
       streamlit run app.py
     depends_on:
-      - mcpserver1
-      - mcpserver2
+      - mcpserver_ga4

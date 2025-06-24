@@ -72,11 +72,20 @@ def main():
 
         with st.spinner("Thinking…", show_time=True):
             system_prompt = make_system_prompt()
-            main_prompt = make_main_prompt(user_text)
+
+            # Add GA property ID to the prompt if available and relevant
+            final_user_text = user_text
+            ga_property_id = st.session_state.get('ga_property_id')
+            selected_tool_name = st.session_state.get('selected_tool_name')
+
+            if ga_property_id and selected_tool_name and "ga" in selected_tool_name:
+                final_user_text += f" (Use Google Analytics property ID: {ga_property_id})"
+
+            main_prompt = make_main_prompt(final_user_text)
             try:
                 # If agent is available, use it
                 if st.session_state.agent:
-                    response = run_async(run_agent(st.session_state.agent, user_text))
+                    response = run_async(run_agent(st.session_state.agent, final_user_text))
                     tool_output = None
                     # Extract tool executions if available
                     if "messages" in response:

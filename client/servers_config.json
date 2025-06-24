@@ -1,15 +1,8 @@
 {
   "mcpServers": {
-    "WeatherAPI": {
+    "GoogleAnalyticsAPI": {
       "transport": "sse",
-      "url": "http://mcpserver1:8000/sse",
-      "timeout": 600,
-      "headers": null,
-      "sse_read_timeout": 900
-    },
-    "CurrencyAPI": {
-      "transport": "sse",
-      "url": "http://mcpserver2:8001/sse",
+      "url": "http://mcpserver_ga4:8002/sse",
       "timeout": 600,
       "headers": null,
       "sse_read_timeout": 900

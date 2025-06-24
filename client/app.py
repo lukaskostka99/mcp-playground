@@ -10,21 +10,19 @@ from apps import mcp_playground
 # Apply nest_asyncio to allow nested asyncio event loops (needed for Streamlit's execution model)
 nest_asyncio.apply()
 
-page_icon_path = os.path.join('.', 'icons', 'playground.png')
+LOGO_URL = "https://www.effectix.com/public/images/logo.svg?v=2"
 
 st.set_page_config(
-                   page_title="MCP Playground",
-                   page_icon=(page_icon_path),
+                   page_title="Effectix AI Playground",
+                   page_icon=LOGO_URL,
                    layout='wide',
                    initial_sidebar_state="expanded"
                     )
 
-# Customize css
-with open(os.path.join('.', '.streamlit', 'style.css')) as f:
-   st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-
-
 def main():
+    # Add logo to the sidebar
+    st.sidebar.image(LOGO_URL, use_container_width=True)
+    
     # Initialize session state for event loop
     if "loop" not in st.session_state:
         st.session_state.loop = asyncio.new_event_loop()
